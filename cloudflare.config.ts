@@ -1,6 +1,7 @@
 import { bindings, defineConfig, triggers } from "cf/config";
 
 // Previews never touch production data: each gets its own D1 database and R2 bucket.
+// Previews cannot carry cron triggers, and the EmDash schedule only runs in production.
 export default defineConfig(({ isPreview }) => {
   const suffix = isPreview ? "-preview" : "";
   return {
@@ -10,7 +11,7 @@ export default defineConfig(({ isPreview }) => {
       compatibilityDate: "2026-02-24",
       compatibilityFlags: ["nodejs_compat"],
       observability: { enabled: true },
-      triggers: [triggers.scheduled({ schedule: "* * * * *" })],
+      ...(isPreview ? {} : { triggers: [triggers.scheduled({ schedule: "* * * * *" })] }),
       env: {
         DB: bindings.d1({ name: `agent-first-handbook${suffix}` }),
         MEDIA: bindings.r2({ name: `agent-first-handbook-media${suffix}` }),
