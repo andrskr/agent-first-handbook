@@ -42,7 +42,9 @@ The starter's docs-server configurations are included for Claude Code, Cursor an
 
 ## For agents
 
-The reader serves `/llms.txt` (grouped by section), `/llms-full.txt`, and every page as Markdown at its address plus `.md`. The introduction is `/introduction.md`. Links between pages in that Markdown point to their Markdown versions.
+The reader serves `/llms.txt` (grouped by section), `/llms-full.txt`, and every page as Markdown at its address plus `.md`. The introduction is `/introduction.md`. A request for a page's own address with `Accept: text/markdown` gets the same Markdown, and each HTML page names its Markdown version and `/llms.txt` in a `Link` header. Links in the Markdown are absolute and point to Markdown versions.
+
+`robots.txt` comes from **Settings > SEO** in EmDash and declares Content Signals. The seed carries it, so set it again in production after you change it. The layout includes EmDash's `WebMcpSearch`, which gives browser agents a read-only search tool.
 
 ## Verification
 

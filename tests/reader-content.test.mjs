@@ -5,6 +5,7 @@ import {
   markdownLinks,
   markdownPath,
   parseRequest,
+  prefersMarkdown,
   pathToSlug,
   slugToPath,
 } from "../src/lib/chapter-paths.ts";
@@ -47,15 +48,33 @@ test("A request is read into a path and a Markdown flag", () => {
   assert.equal(parseRequest("/%E0%A4%A"), null);
 });
 
-test("Markdown links point to the Markdown version of known pages only", () => {
+test("Markdown links are absolute and point to the Markdown version of known pages", () => {
   const paths = new Set(["/", "/authority", "/playbooks/fix-a-bug"]);
   assert.equal(
     markdownLinks(
       "[a](/authority) [b](/playbooks/fix-a-bug#reproduce-first) [c](/) [d](/llms.txt) [e](//evil.test/authority) [f](https://e.test/authority) [g](#x) [h](/missing)",
       paths,
+      "https://h.test",
     ),
-    "[a](/authority.md) [b](/playbooks/fix-a-bug.md#reproduce-first) [c](/introduction.md) [d](/llms.txt) [e](//evil.test/authority) [f](https://e.test/authority) [g](#x) [h](/missing)",
+    "[a](https://h.test/authority.md) [b](https://h.test/playbooks/fix-a-bug.md#reproduce-first) [c](https://h.test/introduction.md) [d](https://h.test/llms.txt) [e](//evil.test/authority) [f](https://e.test/authority) [g](#x) [h](https://h.test/missing)",
   );
+});
+
+test("A request gets Markdown only when it asks for Markdown ahead of HTML", () => {
+  for (const [accept, markdown] of [
+    ["text/markdown", true],
+    ["text/markdown, text/html;q=0.9", true],
+    ["text/html, text/markdown", true],
+    ["Text/Markdown;q=0.5, */*;q=0.1", true],
+    ["text/html, text/markdown;q=0.5", false],
+    ["text/html,application/xhtml+xml,*/*;q=0.8", false],
+    ["*/*", false],
+    ["text/markdown;q=0", false],
+    ["", false],
+    [null, false],
+  ]) {
+    assert.equal(prefersMarkdown(accept), markdown, String(accept));
+  }
 });
 
 test("Sections sort Guide, Playbooks, Reference, then any other name, with pages by order", () => {

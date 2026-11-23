@@ -7,7 +7,10 @@
   "defaultLocale": "en",
   "settings": {
     "title": "Agent-first Product Operating Model",
-    "tagline": "A handbook for building and running products with agents."
+    "tagline": "A handbook for building and running products with agents.",
+    "seo": {
+      "robotsTxt": "User-agent: *\nContent-Signal: search=yes, ai-input=yes, ai-train=yes\nAllow: /\n\n# Disallow admin and API routes\nDisallow: /_emdash/\n"
+    }
   },
   "collections": [
     {

@@ -59,6 +59,9 @@ const edition = {
   settings: {
     title: exported.settings.title,
     tagline: exported.settings.tagline,
+    ...(exported.settings.seo?.robotsTxt && {
+      seo: { robotsTxt: exported.settings.seo.robotsTxt },
+    }),
   },
   collections: [collection],
   content: {

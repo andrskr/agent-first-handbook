@@ -35,12 +35,44 @@ export function parseRequest(
 }
 
 /**
- * Points links to known chapters at their Markdown versions, so an agent that
- * reads one chapter as Markdown stays in Markdown.
+ * Makes root-relative links absolute against the site origin, and points links
+ * to known chapters at their Markdown versions, so an agent that reads one
+ * chapter as Markdown can fetch every link as written and stay in Markdown.
  */
-export function markdownLinks(markdown: string, paths: Set<string>): string {
-  return markdown.replace(/\]\((\/[^)\s#]*)/g, (link, target: string) => {
+export function markdownLinks(
+  markdown: string,
+  paths: Set<string>,
+  origin: string,
+): string {
+  return markdown.replace(/\]\((\/(?!\/)[^)\s#]*)/g, (_, target: string) => {
     const path = target.replace(/\/+$/, "") || "/";
-    return paths.has(path) ? `](${markdownPath(path)}` : link;
+    return `](${origin}${paths.has(path) ? markdownPath(path) : target}`;
   });
+}
+
+/** A chapter as a Markdown document: its title as the h1, then its body. */
+export function chapterMarkdown(
+  chapter: { title: string; markdown: string },
+  paths: Set<string>,
+  origin: string,
+): string {
+  return `# ${chapter.title}\n\n${markdownLinks(chapter.markdown, paths, origin)}`;
+}
+
+/**
+ * Whether an Accept header asks for Markdown ahead of HTML. A wildcard alone
+ * keeps HTML, so browsers and generic clients get the page.
+ */
+export function prefersMarkdown(accept: string | null): boolean {
+  const quality = (type: string) => {
+    for (const range of (accept ?? "").split(",")) {
+      const [name, ...parameters] = range.split(";").map((part) => part.trim());
+      if (name?.toLowerCase() !== type) continue;
+      const q = parameters.find((parameter) => /^q=/i.test(parameter));
+      return q ? Number(q.slice(2)) || 0 : 1;
+    }
+    return 0;
+  };
+  const markdown = quality("text/markdown");
+  return markdown > 0 && markdown >= quality("text/html");
 }

@@ -8,7 +8,7 @@ export const GET: APIRoute = async ({ url }) => {
   const body = chapters
     .map(
       ({ title, path, markdown }) =>
-        `<!-- ${new URL(path, url).href} -->\n\n# ${title}\n\n${markdownLinks(markdown, paths).trim()}\n`,
+        `<!-- ${new URL(path, url).href} -->\n\n# ${title}\n\n${markdownLinks(markdown, paths, url.origin).trim()}\n`,
     )
     .join("\n---\n\n");
   return new Response(body, {

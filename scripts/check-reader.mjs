@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { Parser } from "htmlparser2";
-import { markdownLinks, markdownPath, slugToPath } from "../src/lib/chapter-paths.ts";
+import { chapterMarkdown, markdownPath, slugToPath } from "../src/lib/chapter-paths.ts";
 import { renderMarkdown } from "../src/lib/markdown.ts";
 import { groupBySection, sortChapters } from "../src/lib/order.ts";
 import { searchIndex } from "../src/lib/search-index.ts";
@@ -259,6 +259,10 @@ assert.deepEqual(
   seedPages.map(({ path }) => path),
   "/sitemap.xml must list every page",
 );
+const robots = await (await fetch(new URL("/robots.txt", base))).text();
+const signals = seed.settings.seo?.robotsTxt?.match(/^Content-Signal: .+$/m)?.[0];
+assert(signals, "The seed robots.txt must declare Content Signals");
+assert(robots.includes(signals), "/robots.txt must carry the seed's Content Signals");
 const search = await fetch(new URL("/search.json", base));
 assert(search.headers.get("content-type")?.startsWith("application/json"));
 assert.deepEqual(
@@ -275,15 +279,34 @@ for (const source of seedPages) {
     response.headers.get("content-type")?.startsWith("text/markdown"),
     `${url.pathname} must be Markdown`,
   );
-  const body = markdownLinks(source.markdown, paths);
+  const document = chapterMarkdown(source, paths, base.origin);
   assert.equal(
     await response.text(),
-    `# ${source.title}\n\n${body}`,
+    document,
     `${url.pathname} does not match its seed page`,
   );
+  const body = document.slice(`# ${source.title}\n\n`.length);
   assert(whole.includes(body.trim()), `/llms-full.txt is missing ${source.path}`);
-  for (const [, href] of body.matchAll(/\]\((\/[^)\s#]+\.md)/g))
-    markdown.add(new URL(href, base).href);
+  for (const [, href] of body.matchAll(/\]\((https?:\/\/[^)\s#]+\.md)/g)) {
+    assert.equal(new URL(href).origin, base.origin, `${url.pathname} links off-site to ${href}`);
+    markdown.add(href);
+  }
+
+  const page = new URL(source.path, base);
+  const negotiated = await fetch(page, { headers: { Accept: "text/markdown" } });
+  assert(
+    negotiated.headers.get("content-type")?.startsWith("text/markdown"),
+    `${source.path} must answer Accept: text/markdown with Markdown`,
+  );
+  assert.equal(await negotiated.text(), document, `${source.path} negotiated Markdown differs`);
+  const html = await fetch(page);
+  assert(html.headers.get("content-type")?.startsWith("text/html"), `${source.path} must default to HTML`);
+  assert.match(html.headers.get("vary") ?? "", /accept/i, `${source.path} must vary on Accept`);
+  assert(
+    html.headers.get("link")?.includes(`<${markdownPath(source.path)}>; rel="alternate"; type="text/markdown"`),
+    `${source.path} must link its Markdown version in a Link header`,
+  );
+  await html.body?.cancel();
 }
 for (const href of markdown) {
   const response = await fetch(href);
