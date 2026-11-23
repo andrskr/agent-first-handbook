@@ -55,6 +55,19 @@ pnpm content:check
 
 The reader check expects the local site to be running. Pass its URL as an argument if Astro chose another port. The build creates local Worker output. Deployment is a separate operation.
 
+## Deploy
+
+The site runs as the Cloudflare Worker `agent-first-handbook` at [agent-first-handbook.askre.workers.dev](https://agent-first-handbook.askre.workers.dev). Workers Builds deploys it from this repository:
+
+| Push to | Command | Result |
+| --- | --- | --- |
+| `main` | `pnpm exec cf deploy` | Production, with the `agent-first-handbook` D1 database and `agent-first-handbook-media` R2 bucket. |
+| Any other branch | `pnpm exec cf previews deploy` | A Preview URL for the branch, with the `-preview` database and bucket. |
+
+Previews never use production data. `cloudflare.config.ts` switches the bindings when `isPreview` is true. A new database shows the EmDash setup wizard, and the first person to finish it becomes the administrator. Finish setup on a new deployment at once. Content edited in production lives in production D1, not in Git.
+
+To check a deployment, pass its URL to the reader check: `node scripts/check-reader.mjs https://agent-first-handbook.askre.workers.dev`.
+
 ## Credits
 
 This handbook draws on ideas from the Amp [blog](https://ampcode.com/chronicle) and [YouTube channel](https://www.youtube.com/@AmpCodeInc).
