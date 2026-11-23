@@ -1,0 +1,29 @@
+---
+import Docs from '../layouts/Docs.astro';
+import { listChapters, locate } from '../lib/chapters';
+import { renderMarkdown } from '../lib/markdown';
+
+const found = await locate(Astro.url.pathname);
+if ('redirect' in found) return Astro.redirect(`${found.redirect}${Astro.url.search}`, 308);
+const { chapter } = found;
+if (!chapter) Astro.response.status = 404;
+const chapters = await listChapters();
+const rendered = chapter ? renderMarkdown(chapter.markdown) : null;
+const index = chapter ? chapters.findIndex(({ path }) => path === chapter.path) : -1;
+const previous = index > 0 ? chapters[index - 1] : undefined;
+const next = index >= 0 ? chapters[index + 1] : undefined;
+const title = chapter?.title ?? 'Page not found';
+const description = rendered?.description || 'A handbook for building and running products with agents central to the work.';
+---
+<Docs title={title} description={description} chapters={chapters} current={chapter} headings={rendered?.headings}>
+  <h1>{title}</h1>
+  {rendered
+    ? <div class="prose" set:html={rendered.html} />
+    : <div class="prose"><p>This page could not be found. Choose a page from the menu or return to the <a href="/">introduction</a>.</p></div>}
+  {(previous || next) && (
+    <nav class="pager" aria-label="Previous and next pages">
+      {previous && <a class="previous" href={previous.path} rel="prev"><small>Previous</small>{previous.title}</a>}
+      {next && <a class="next" href={next.path} rel="next"><small>Next</small>{next.title}</a>}
+    </nav>
+  )}
+</Docs>

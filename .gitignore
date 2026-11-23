@@ -1,0 +1,14 @@
+.DS_Store
+.audit/
+*.emdash
+node_modules/
+dist/
+.astro/
+.cloudflare/
+.wrangler/
+.emdash/
+emdash-env.d.ts
+.env
+.env.*
+.dev.vars
+.dev.vars.*

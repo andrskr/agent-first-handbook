@@ -1,0 +1,22 @@
+# Agent-first Product Operating Model
+
+This repository publishes an editorial handbook with EmDash and Astro. Its subject is a reusable model for building and operating products with agents. Agents are its main audience, and people come second. Add a feature only if an agent or a person needs it to apply the model. The reader's Cloudflare stack belongs to this website. Teams adopting the model choose their own stack, tools, owners, and permissions.
+
+## Editorial work
+
+- The handbook has three sections. **Guide** explains the model, **Playbooks** give task procedures, and **Reference** holds lookup tables and templates. Read the [introduction](http://localhost:4321/) to learn the model, and use the sidebar or search to find a rule. Read every page that uses a rule before changing it.
+- Edit the `pages` collection, labeled **Chapters**, in EmDash. Each page has a title, a section (Guide, Playbooks or Reference), an order within its section and a Markdown body without an h1. Keep one authoritative page for each rule and link to it.
+- Keep pages short. Prefer a table or a list to paragraphs that restate each other. Every playbook has the same five headings: When to use, Before you start, Steps, Done when, and Stop and ask when. Agents turn playbooks into skills, so keep that shape. The published edition can be refreshed in Git for recovery using the workflow in [README.md](README.md).
+- Distinguish agreed decisions, proposed defaults, and open questions. The purpose of the model and the irrefutable-proof terminology are agreed. Detailed operating policies remain proposed until adopted. Label fictional examples and keep the validation limits in **Adopting the model**. The handbook describes the model, not this website. Keep instructions for editing, checking and publishing the site in this file and the README, never in a chapter.
+- Explain triggers, ownership, actions, handoffs, evidence and recovery. Distinguish implementation, verification, integration, deployment, exposure and observed behavior. Descriptions of future agent authority do not grant permission to act.
+- Keep discussion separate from implementation. Work locally for review. Publishing through this local CMS updates local D1. Deployment or changes to remote resources require separate authorization.
+
+## Working on the reader
+
+Run commands from the repository root. Use pnpm, the project's `cf` CLI, and `cloudflare.config.ts`. Setup, editing, recovery and verification commands are in [README.md](README.md). EmDash's admin is at `/_emdash/admin`. The local Dev bypass URL printed at startup establishes a development session.
+
+- Keep CMS pages server-rendered. `src/live.config.ts` registers the EmDash loader. `src/lib/chapters.ts` reads entries from D1 and `src/pages/[...path].astro` serves the reader. Live entry IDs are URL slugs. The entry's data ID identifies the database record for management APIs.
+- A slug maps to its path by replacing `--` with `/`, so `playbooks--fix-a-bug` is served at `/playbooks/fix-a-bug`. The slug `introduction` is served at `/`. Every page is also served as Markdown at its path plus `.md`. Sections sort as Guide, Playbooks, Reference, then any other name. Pages sort by order within a section. Links between pages in Markdown are absolute paths such as `/playbooks/fix-a-bug#reproduce-first`. Heading ids come from the heading text, so renaming a heading changes its anchor.
+- When introducing structured image fields, use the EmDash image object and renderer. Taxonomy queries use the exact schema name. If enabling Astro caching, propagate EmDash query cache hints. Keep the Worker's EmDash scheduled handler paired with its Cloudflare cron trigger.
+- Load the official [site integration skill](.agents/skills/building-emdash-site/SKILL.md), [CLI skill](.agents/skills/emdash-cli/SKILL.md), or [plugin skill](.agents/skills/creating-plugins/SKILL.md) for the relevant task. Verify changing APIs against the [EmDash docs MCP](https://docs.emdashcms.com/docs-mcp/) or installed package. The starter skills cover several platforms. This project uses local D1 and R2 with the typed Cloudflare configuration.
+- Run `pnpm test`, `pnpm typecheck`, `pnpm build`, and `pnpm content:check` against the running reader after code or content changes. Prose follows the writing rules the tests enforce: no em or en dashes, curly quotes, or semicolons outside code. Exercise the affected reader or editor flow. For editorial changes check the draft preview, publish locally, and verify the public chapter and affected links.
