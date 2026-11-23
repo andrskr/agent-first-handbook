@@ -7,6 +7,7 @@ export default defineConfig({
     compatibilityDate: "2026-02-24",
     compatibilityFlags: ["nodejs_compat"],
     observability: { enabled: true },
+    domains: ["handbook.askre.page"],
     triggers: [triggers.scheduled({ schedule: "* * * * *" })],
     env: {
       DB: bindings.d1({ name: "agent-first-handbook" }),

@@ -1,6 +1,6 @@
 # Agent-first Product Operating Model
 
-A handbook for building and operating products with agents. Agents are the main audience, and people come second. Start with the [introduction](http://localhost:4321/), then use the sidebar or search.
+A handbook for building and operating products with agents. Agents are the main audience, and people come second. Read it at [handbook.askre.page](https://handbook.askre.page/). Start with the introduction, then use the sidebar or search.
 
 ## Run locally
 
@@ -59,11 +59,11 @@ The reader check expects the local site to be running. Pass its URL as an argume
 
 ## Deploy
 
-The site runs as the Cloudflare Worker `agent-first-handbook` at [agent-first-handbook.askre.workers.dev](https://agent-first-handbook.askre.workers.dev), with the `agent-first-handbook` D1 database and the `agent-first-handbook-media` R2 bucket. Workers Builds deploys every push to `main` with `npx cf build` and `npx cf deploy --prebuilt`. Other branches do not build. Check changes locally before you push.
+The site runs as the Cloudflare Worker `agent-first-handbook` at [handbook.askre.page](https://handbook.askre.page), a custom domain declared in `cloudflare.config.ts`. The `workers.dev` address is turned off. The Worker uses the `agent-first-handbook` D1 database and the `agent-first-handbook-media` R2 bucket. Workers Builds deploys every push to `main` with `npx cf build` and `npx cf deploy --prebuilt`. Other branches do not build. Check changes locally before you push.
 
 Content edited in production lives in production D1, not in Git. A new, empty database shows the EmDash setup wizard, and the first person to finish it becomes the administrator. Finish setup on a new deployment at once.
 
-To check the live site, pass its URL to the reader check: `node scripts/check-reader.mjs https://agent-first-handbook.askre.workers.dev`.
+To check the live site, pass its URL to the reader check: `node scripts/check-reader.mjs https://handbook.askre.page`.
 
 ## Credits
 
