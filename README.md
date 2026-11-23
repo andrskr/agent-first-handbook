@@ -59,7 +59,7 @@ The reader check expects the local site to be running. Pass its URL as an argume
 
 ## Deploy
 
-The site runs as the Cloudflare Worker `agent-first-handbook` at [handbook.askre.page](https://handbook.askre.page), a custom domain declared in `cloudflare.config.ts`. The `workers.dev` address is turned off. The Worker uses the `agent-first-handbook` D1 database and the `agent-first-handbook-media` R2 bucket. Workers Builds deploys every push to `main` with `npx cf build` and `npx cf deploy --prebuilt`. Other branches do not build. Check changes locally before you push.
+The site runs as the Cloudflare Worker `agent-first-handbook` at [handbook.askre.page](https://handbook.askre.page), a custom domain declared in `cloudflare.config.ts`. The `workers.dev` address stays on until every administrator has a passkey for the custom domain, because passkeys only work on the address where they were created. The Worker uses the `agent-first-handbook` D1 database and the `agent-first-handbook-media` R2 bucket. Workers Builds deploys every push to `main` with `npx cf build` and `npx cf deploy --prebuilt`. Other branches do not build. Check changes locally before you push.
 
 Content edited in production lives in production D1, not in Git. A new, empty database shows the EmDash setup wizard, and the first person to finish it becomes the administrator. Finish setup on a new deployment at once.
 

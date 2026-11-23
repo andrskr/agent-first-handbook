@@ -8,6 +8,8 @@ export default defineConfig({
     compatibilityFlags: ["nodejs_compat"],
     observability: { enabled: true },
     domains: ["handbook.askre.page"],
+    // Keep until every administrator has a passkey for handbook.askre.page.
+    workersDev: true,
     triggers: [triggers.scheduled({ schedule: "* * * * *" })],
     env: {
       DB: bindings.d1({ name: "agent-first-handbook" }),
